@@ -82,7 +82,7 @@ const DepartmentMasterinsert = () => {
 
     const fetchDepartmentById = async (id: string) => {
         try {
-            const response = await axiosInstance.get(`${config.API_URL}/CheckList/GetCheckList`, {
+            const response = await axiosInstance.get(`${config.API_URL}/CheckList/GetCheckList/GetCheckList`, {
                 params: { id: id }
             });
             if (response.data.isSuccess) {

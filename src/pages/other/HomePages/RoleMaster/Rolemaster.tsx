@@ -27,10 +27,6 @@ interface Column {
     visible: boolean;
 }
 
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
 
 interface ModuleProjectList {
     id: string;
@@ -44,7 +40,6 @@ const RoleMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [downloadCsv, setDownloadCsv] = useState<Manager[]>([]);
     const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
     const [searchTriggered, setSearchTriggered] = useState(false);
@@ -65,6 +60,7 @@ const RoleMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'roleName', label: 'Role Name ', visible: true },
+        { id: 'description', label: 'Description ', visible: true },
         { id: 'status', label: 'Status ', visible: true },
 
 
@@ -162,11 +158,11 @@ const RoleMaster = () => {
     const fetchEmployee = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`${config.API_URL}/RoleMaster/GetRole`, {
+            const response = await axiosInstance.get(`${config.API_URL}/Role/getroles`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                setEmployee(response.data.roleMasterListResponses);
+                setEmployee(response.data.data);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -194,7 +190,6 @@ const RoleMaster = () => {
             }
         };
 
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         fetchData('EmployeeMaster/GetEmployee', setDownloadCsv, 'employeeMasterList');
     }, []);
@@ -279,28 +274,12 @@ const RoleMaster = () => {
                     }}
                 >
                     <Row>
-                        <Col lg={4} className="mt-2">
-                            <Form.Group controlId="searchEmployee">
-                                <Form.Label>Manager Name</Form.Label>
-                                <Select
-                                    name="searchEmployee"
-                                    value={employeeList.find(emp => emp.employeeName === searchEmployee) || null} // handle null
-                                    onChange={(selectedOption) => setSearchEmployee(selectedOption ? selectedOption.employeeName : "")} // null check
-                                    options={employeeList}
-                                    getOptionLabel={(emp) => emp.employeeName}
-                                    getOptionValue={(emp) => emp.employeeName.split('-')[0].trim()}
-                                    isSearchable={true}
-                                    placeholder="Select Manager Name"
-                                    className="h45"
-                                />
-                            </Form.Group>
-                        </Col>
 
 
 
                         <Col lg={4} className="mt-2">
                             <Form.Group controlId="searchProject">
-                                <Form.Label>Department Name</Form.Label>
+                                <Form.Label>Role Name</Form.Label>
                                 <Select
                                     name="searchProject"
                                     value={projectList.find(item => item.projectName === searchProject)}
@@ -309,7 +288,7 @@ const RoleMaster = () => {
                                     getOptionLabel={(task) => task.projectName}
                                     getOptionValue={(task) => task.projectName}
                                     isSearchable={true}
-                                    placeholder="Select Department Name"
+                                    placeholder="Select Role Name"
                                     className="h45"
                                 />
                             </Form.Group>
@@ -319,18 +298,17 @@ const RoleMaster = () => {
 
                         <Col lg={4} className="mt-2">
                             <Form.Group controlId="searchEmpstatus">
-                                <Form.Label>Employee Status</Form.Label>
+                                <Form.Label> Status</Form.Label>
                                 <Select
                                     name="searchEmpstatus"
                                     options={optionsEmpStatus}
                                     value={optionsEmpStatus.find(option => option.value === searchEmpstatus) || null}
                                     onChange={(selectedOption) => setSearchEmpstatus(selectedOption?.value || '')}
-                                    placeholder="Select Employee Status"
+                                    placeholder="Select  Status"
                                 />
                             </Form.Group>
                         </Col>
 
-                        <Col></Col>
 
                         <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
                             <ButtonGroup aria-label="Basic example" className="w-100">

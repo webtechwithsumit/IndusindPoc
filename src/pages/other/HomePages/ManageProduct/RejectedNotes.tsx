@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Button, Table, Container, Row, Col, Alert, Card, Popover, OverlayTrigger } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Button, Table, Container, Row, Col, Alert, Card, Popover, OverlayTrigger, Modal } from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import PaginationComponent from '@/pages/other/Component/PaginationComponent';
+import { useAuthContext } from '@/common';
+import DateFormatter from '@/pages/other/Component/DateComponent';
 import axiosInstance from '@/utils/axiosInstance';
+import TabNavigation from '../../Component/TabNavigation';
+
 
 interface Product {
     id: number;
@@ -16,8 +19,9 @@ interface Product {
     originator: string;
     authorizedSignatory: string;
     assignee: string;
+    rejectedReason: string;
     mobileNumber: string;
-    isApproved: number;
+    createdDate: string;
     fileUpload: string;
     createdBy: string;
     updatedBy: string;
@@ -31,12 +35,14 @@ interface Column {
 }
 
 
-const NewProductPendingCirculation = () => {
+const RejectedNotes = () => {
+    const { user } = useAuthContext();
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [project, setProject] = useState<Product[]>([]);
-
+    const [show, setShow] = useState(false);
+    const [selectedRejectionReason, setSelectedRejectionReason] = useState('');
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -48,19 +54,18 @@ const NewProductPendingCirculation = () => {
         }
     }, [location.state, navigate]);
 
-
-
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'productName', label: 'Product Name ', visible: true },
+        { id: 'productName', label: 'Product ', visible: true },
         { id: 'productType', label: 'Product Type', visible: true },
+        { id: 'departmentName', label: 'Department', visible: true },
         { id: 'originator', label: 'Originator', visible: true },
         { id: 'mobileNumber', label: 'Mobile Number', visible: true },
-        { id: 'startDate', label: 'Start Date', visible: true },
-        { id: 'dayslappesd', label: 'Day Laps', visible: true },
-        { id: 'queryCount', label: 'UnResolved Query', visible: true },
-        { id: 'uploadedOn', label: 'SignOff By Department', visible: true },
-    ]);
+        { id: 'createdDate', label: 'Start Date', visible: true },
+        { id: 'daysLapsed', label: 'Days Lapsed', visible: true },
+        { id: 'signedOffByDepartment', label: 'Sign off by Department', visible: true },
+        { id: 'rejectedReason', label: 'Reason for Rejection', visible: true },
 
+    ]);
     const handleOnDragEnd = (result: any) => {
         if (!result.destination) return;
         const reorderedColumns = Array.from(columns);
@@ -70,6 +75,7 @@ const NewProductPendingCirculation = () => {
     };
     // ==============================================================
 
+
     useEffect(() => {
         fetchDetailsMain();
     }, [currentPage]);
@@ -77,8 +83,8 @@ const NewProductPendingCirculation = () => {
     const fetchDetailsMain = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`${config.API_URL}/Product/GetProductCirculatedListForSignOff`, {
-                params: { PageIndex: currentPage }
+            const response = await axiosInstance.get(`${config.API_URL}/Product/GetProductListForRejection`, {
+                params: { PageIndex: currentPage, RoleName: user?.roles, DepartmentName: user?.departmentName },
             });
             if (response.data.isSuccess) {
                 setProject(response.data.getProducts);
@@ -93,17 +99,18 @@ const NewProductPendingCirculation = () => {
             setLoading(false);
         }
     };
+
+
     const ActionMenu: React.FC<{ item: Product }> = ({ item }) => {
         const popover = (
             <Popover id={`popover-action-${item.id}`} className="shadow">
                 <Popover.Body className="p-2">
-                    <Button variant="link" as={Link as any} to={`/pages/ProductMaster/${item.id}`} className="d-block text-start">
+                    <Button variant="link" as={Link as any} to={`/pages/FinalViewProduct/${item.id}`} className="d-block text-start">
                         <i className="ri-file-list-line me-2"></i> Document
                     </Button>
-                    <Button variant="link" as={Link as any} to={`/pages/DiscussionList/${item.id}`} className="d-block text-start">
-                        <i className="ri-file-list-line me-2"></i> View Status
+                    <Button variant="link" as={Link as any} to={`/pages/DiscussionList/${item.id}`} className="d-block text-start text-danger">
+                        <i className="ri-discuss-line me-2"></i> Discussion Board
                     </Button>
-
                 </Popover.Body>
             </Popover>
         );
@@ -117,20 +124,28 @@ const NewProductPendingCirculation = () => {
         );
     };
 
+    const handleEdit = (reason: string) => {
+        setSelectedRejectionReason(reason);
+        setShow(true);
+    };
 
+    const handleClose = () => {
+        setShow(false);
+    };
 
     return (
         <>
             <div className="mt-3">
+                <TabNavigation />
                 <Row>
                     <Col sm={12} >
                         <Card className="p-0">
-                            <Card.Body >
+                            <Card.Body className="">
 
-                                <div className='bg-white p-2 pb-2'>
+                                <div className='bg-white p-2'>
                                     <Row className=''>
                                         <div className="d-flex justify-content-between profilebar p-1">
-                                            <h4 className='text-primary d-flex align-items-center m-0'><i className="ri-file-list-line me-2 text-primary "></i>Un Resolved Query</h4>
+                                            <h4 className='text-primary d-flex align-items-center m-0'><i className="ri-file-list-line me-2 text-primary "></i> Rejected Product </h4>
                                             <div className="d-flex justify-content-end bg-light w-50 profilebar">
                                                 <div className="input-group w-50 me-4">
                                                     <input
@@ -144,7 +159,6 @@ const NewProductPendingCirculation = () => {
                                                         <Button> <i className="ri-search-line fs-16"></i></Button>
                                                     </span>
                                                 </div>
-
                                                 <Button variant="primary" className="">
                                                     Download CSV
                                                 </Button>
@@ -174,6 +188,8 @@ const NewProductPendingCirculation = () => {
                                                 </Container>
                                             ) : (
                                                 <>
+
+
                                                     <DragDropContext onDragEnd={handleOnDragEnd}>
                                                         <Table hover className='bg-white custom-table'>
                                                             <thead>
@@ -213,13 +229,22 @@ const NewProductPendingCirculation = () => {
                                                                             <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                                             {columns.filter(col => col.visible).map((col) => (
                                                                                 <td key={col.id}>
-                                                                                    <div>{item[col.id as keyof Product]}</div>
+                                                                                    {col.id === 'rejectedReason' ? (
+                                                                                        <div onClick={() => handleEdit(item.rejectedReason)} className='text-primary cursor-pointer text-center'>
+                                                                                            <i className="ri-eye-line"></i>  View
+                                                                                        </div>
+                                                                                    ) : col.id === 'createdDate' ? (
+                                                                                        <DateFormatter dateString={item.createdDate} />
+                                                                                    ) : (
+                                                                                        <div>{item[col.id as keyof Product]}</div>
+                                                                                    )}
                                                                                 </td>
                                                                             ))}
-                                                                            <td className='text-center'>
 
+                                                                            <td className='text-center'>
                                                                                 <ActionMenu item={item} />
                                                                             </td>
+
                                                                         </tr>
                                                                     ))
                                                                 ) : (
@@ -229,7 +254,7 @@ const NewProductPendingCirculation = () => {
                                                                                 <Row className="justify-content-center">
                                                                                     <Col xs={12} md={8} lg={6}>
                                                                                         <Alert variant="info" className="text-center">
-                                                                                            <h4>No Data Found</h4>
+                                                                                            <h4>No Data  Found</h4>
                                                                                             <p>You currently don't have any Data</p>
                                                                                         </Alert>
                                                                                     </Col>
@@ -239,26 +264,34 @@ const NewProductPendingCirculation = () => {
                                                                     </tr>
                                                                 )}
                                                             </tbody>
-
                                                         </Table>
+                                                        <PaginationComponent currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
                                                     </DragDropContext>
-                                                    <PaginationComponent currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
                                                 </>
-
                                             )}
                                         </div>
                                     </>
 
                                 )}
 
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            </div>
+                                <Modal show={show} onHide={handleClose} centered>
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>Rejection Reason</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <p>{selectedRejectionReason || "No reason provided."}</p>
+                                    </Modal.Body>
 
+                                </Modal>
+
+
+                            </Card.Body >
+                        </Card >
+                    </Col >
+                </Row >
+            </div >
         </>
     );
 };
 
-export default NewProductPendingCirculation;
+export default RejectedNotes;

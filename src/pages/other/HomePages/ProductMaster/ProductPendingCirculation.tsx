@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import PaginationComponent from '../../Component/PaginationComponent';
 import axiosInstance from '@/utils/axiosInstance';
+import TabNavigation from '../../Component/TabNavigation';
 
 
 interface Product {
@@ -97,6 +98,7 @@ const OwnProduct = () => {
         <>
 
             <div className="mt-3">
+                <TabNavigation />
                 <Row>
                     <Col sm={12} >
                         <Card className="p-0">

@@ -4,10 +4,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import { toast } from 'react-toastify';
 import axiosInstance from '@/utils/axiosInstance';
+import { useAuthContext } from '@/common';
 
 interface Manager {
     id: number;
     roleName: string;
+    description: string;
     status: number;
     createdBy: string;
     updatedBy: string;
@@ -15,6 +17,7 @@ interface Manager {
 
 
 const RoleMasterinsert = () => {
+    const { user } = useAuthContext();
     const { id } = useParams<{ id: any }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -23,17 +26,17 @@ const RoleMasterinsert = () => {
     const [manager, setManager] = useState<Manager>({
         id: 0,
         roleName: '',
+        description: '',
         status: 0,
         createdBy: '',
         updatedBy: ''
     });
 
+
     useEffect(() => {
         toast.dismiss();
-        const storedEmpName = localStorage.getItem('EmpName');
-        const storedEmpID = localStorage.getItem('EmpId');
-        if (storedEmpName && storedEmpID) {
-            setEmpName(`${storedEmpName} - ${storedEmpID}`);
+        if (user?.userId) {
+            setEmpName(`${user?.userId}`);
         } else {
             setEmpName('Unknown');
         }
@@ -50,11 +53,11 @@ const RoleMasterinsert = () => {
 
     const fetchManagerById = async (id: string) => {
         try {
-            const response = await axiosInstance.get(`${config.API_URL}/Manager/GetManagerList?Flag=2`, {
+            const response = await axiosInstance.get(`${config.API_URL}/RoleMaster/GetRole`, {
                 params: { id }
             });
             if (response.data.isSuccess) {
-                const fetchedManager = response.data.managerList[0];
+                const fetchedManager = response.data.roleMasterListResponses[0];
                 setManager(fetchedManager);
             } else {
                 console.error(response.data.message);
@@ -65,7 +68,6 @@ const RoleMasterinsert = () => {
     };
 
 
-
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
         const parsedValue = type === 'radio' ? parseInt(value, 10) : value;
@@ -74,13 +76,13 @@ const RoleMasterinsert = () => {
             [name]: parsedValue
         });
     };
-
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
         if (!manager.roleName) errors.managerName = 'Role Name is required';
         setValidationErrors(errors);
         return Object.keys(errors).length === 0;
     };
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -97,15 +99,20 @@ const RoleMasterinsert = () => {
             updatedBy: editMode ? empName : '',
         };
 
+        console.log(payload)
         try {
-            const apiUrl = `${config.API_URL}/Manager/InsertUpdateManager`;
+            const apiUrl = editMode
+                ? `${config.API_URL}/Role/updateRolebyId`
+                : `${config.API_URL}/Role/InserUpdateRole`;
+
             const response = await axiosInstance.post(apiUrl, payload);
-            if (response.status === 200) {
-                navigate('/pages/managerMaster', {
+
+            if (response.status === 200 || 201) {
+                navigate('/pages/RoleMaster', {
                     state: {
                         successMessage: editMode
                             ? `Record updated successfully!`
-                            : `Record    added successfully!`
+                            : `Record added successfully!`
                     }
                 });
             } else {
@@ -123,7 +130,7 @@ const RoleMasterinsert = () => {
                 <div className="d-flex profilebar p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
                     <h4 className='text-primary m-0'>
                         <i className="ri-file-list-line me-2"></i>
-                        <span className="fw-bold">{editMode ? 'Edit Manager' : 'Add Manager'}</span>
+                        <span className="fw-bold">{editMode ? 'Edit ' : 'Add '} Role</span>
                     </h4>
                 </div>
                 <div className='bg-white p-2 rounded-3 border'>
@@ -141,6 +148,21 @@ const RoleMasterinsert = () => {
                                         className={validationErrors.roleName ? "input-border" : ""}
                                     />
                                     {validationErrors.roleName && <small className="text-danger">{validationErrors.roleName}</small>}
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="description" className="mb-3">
+                                    <Form.Label><i className="ri-user-line"></i> Description <span className='text-danger'>*</span></Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        name="description"
+                                        rows={1}
+                                        value={manager.description}
+                                        onChange={handleChange}
+                                        placeholder='Enter Description'
+                                        className={validationErrors.description ? "input-border" : ""}
+                                    />
+                                    {validationErrors.description && <small className="text-danger">{validationErrors.description}</small>}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -182,7 +204,7 @@ const RoleMasterinsert = () => {
                                     </Link>
                                     &nbsp;
                                     <Button variant="primary" type="submit">
-                                        {editMode ? 'Update Manager' : 'Add Manager'}
+                                        {editMode ? 'Update ' : 'Add '} Role
                                     </Button>
                                 </div>
                             </Col>

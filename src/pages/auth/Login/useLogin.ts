@@ -21,7 +21,7 @@ export default function useLogin() {
 		setLoading(true);
 		try {
 			// Call API for login
-			const res = await fetch(`${config.API_URL}/Login/Login`, {
+			const res = await fetch(`${config.API_URL}/auth/login`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -36,33 +36,26 @@ export default function useLogin() {
 			const data = await res.json();
 
 			// Ensure API response is valid
-			if (data.isSuccess && data.loginList) {
-				const employeeDetails = data.loginList;
+			if (data.isSuccess && data.user) {
+				const userDetails = data.user;
 
 				// Validate required properties before saving session
-				if (!employeeDetails.roleName || !data.token) {
+				if (!userDetails.userId || !data.token) {
 					throw new Error('Invalid login response: Missing required fields');
 				}
 
-				localStorage.setItem('userRoles', employeeDetails.roleName)
+				localStorage.setItem('userRoles', userDetails.designation || '');
+
 				// Save session in authentication context
 				saveSession({
-					employeeName: employeeDetails.employeeName || '',
-					emailID: employeeDetails.emailID || '',
-					userName: employeeDetails.userName || '',
-					roles: employeeDetails.roleName || '',
-					mobileNumber: employeeDetails.mobileNumber || '',
-					officeLandLine: employeeDetails.officeLandLine || '',
-					extensionNumber: employeeDetails.extensionNumber || '',
-					departmentID: employeeDetails.departmentID || 0,
-					departmentName: employeeDetails.departmentName || '',
-					roleID: employeeDetails.roleID || 0,
-					roleName: employeeDetails.roleName || '',
-					status: employeeDetails.status || 0,
-					createdBy: employeeDetails.createdBy || '',
-					createdDate: employeeDetails.createdDate || '',
-					updatedBy: employeeDetails.updatedBy || '',
-					updatedDate: employeeDetails.updatedDate || '',
+					userId: userDetails.userId,
+					fullName: userDetails.fullName,
+					email: userDetails.email,
+					departmentId: userDetails.departmentId,
+					departmentName: userDetails.departmentName,
+					designation: userDetails.designation,
+					multirole: userDetails.multirole,
+					roles: userDetails.roles,
 					token: data.token,
 				});
 
@@ -74,6 +67,7 @@ export default function useLogin() {
 			} else {
 				throw new Error(data.message || 'Login failed');
 			}
+
 		} catch (error: any) {
 			console.error('Login Error:', error.message);
 			alert(error.message); // Replace with your UI error-handling mechanism

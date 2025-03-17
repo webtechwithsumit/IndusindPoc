@@ -131,15 +131,13 @@ const DepartmentMasterinsert = () => {
         if (!departments.departmentDescription.trim()) {
             errors.departmentDescription = 'Department Description is required';
         }
-        if (!departments.defaultAuthorizedSignatoryID.trim()) {
-            errors.defaultAuthorizedSignatoryID = 'Authorized Signatory is required';
-        }
-        if (!departments.defaultAssigneeID.trim()) {
-            errors.defaultAssigneeID = 'Assignee is required';
-        }
-        if (departments.status === null || departments.status === undefined) {
-            errors.status = 'Status is required';
-        }
+        // if (!departments.defaultAuthorizedSignatoryID.trim()) {
+        //     errors.defaultAuthorizedSignatoryID = 'Authorized Signatory is required';
+        // }
+        // if (!departments.defaultAssigneeID.trim()) {
+        //     errors.defaultAssigneeID = 'Assignee is required';
+        // }
+
 
         setValidationErrors(errors);
         return Object.keys(errors).length === 0;
@@ -261,9 +259,7 @@ const DepartmentMasterinsert = () => {
                                                 placeholder="Select Authorized Signatory"
                                                 className={validationErrors.defaultAuthorizedSignatoryID ? "input-border" : ""}
                                             />
-                                            {validationErrors.defaultAuthorizedSignatoryID && (
-                                                <small className="text-danger">{validationErrors.defaultAuthorizedSignatoryID}</small>
-                                            )}
+
                                         </Form.Group>
                                     </Col>
 
@@ -287,9 +283,7 @@ const DepartmentMasterinsert = () => {
                                                 placeholder="Select Assignee"
                                                 className={validationErrors.defaultAssigneeID ? "input-border" : ""}
                                             />
-                                            {validationErrors.defaultAssigneeID && (
-                                                <small className="text-danger">{validationErrors.defaultAssigneeID}</small>
-                                            )}
+
                                         </Form.Group>
                                     </Col>
 

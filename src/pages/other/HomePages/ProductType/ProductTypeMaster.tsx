@@ -10,8 +10,8 @@ import PaginationComponent from '../../Component/PaginationComponent';
 import axiosInstance from '@/utils/axiosInstance';
 
 interface Employee {
-    id: number;
-    name: string;
+    _id: number;
+    productTypeName: string;
     status: number;
     createdBy: string;
     updatedBy: string;
@@ -48,7 +48,8 @@ const EmployeeMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'name', label: 'Name', visible: true },
+        { id: 'productTypeName', label: 'ProductType Name', visible: true },
+        { id: 'description', label: 'Description', visible: true },
         { id: 'status', label: 'Status', visible: true },
     ]);
 
@@ -137,7 +138,7 @@ const EmployeeMaster = () => {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                setProjectType(response.data.productTypes);
+                setProjectType(response.data.data);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -184,8 +185,8 @@ const EmployeeMaster = () => {
                 'Updated By'
             ],
             ...data.map(item => [
-                item.id,
-                item.name,
+                item._id,
+                item.productTypeName,
                 item.status,
                 item.createdBy,
                 item.updatedBy
@@ -355,15 +356,17 @@ const EmployeeMaster = () => {
                                     </thead>
                                     <tbody>
                                         {projecType.length > 0 ? (
-                                            projecType.slice(0, 10).map((item, index) => (
-                                                <tr key={item.id}>
+                                            projecType.slice(0, 20).map((item, index) => (
+                                                <tr key={item._id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}>
 
-                                                            {col.id === 'status' ? (item.status === 1 ? 'Active' : 'Inactive') : (
-                                                                <div>{item[col.id as keyof Employee]}</div>
-                                                            )}
+                                                            {
+                                                                // col.id === 'status' ? (item.status === 1 ? 'Active' : 'Inactive') :
+                                                                (
+                                                                    <div>{item[col.id as keyof Employee]}</div>
+                                                                )}
 
                                                         </td>
                                                     ))}
@@ -374,7 +377,7 @@ const EmployeeMaster = () => {
                                                     </Link>
                                                     </td> */}
                                                     <td className='text-center'>
-                                                        <Link to={`/pages/ProductTypeMasterinsert/${item.id}`}>
+                                                        <Link to={`/pages/ProductTypeMasterinsert/${item._id}`}>
                                                             <Button variant='primary' className='p-0 text-white me-3'>
                                                                 <i className='btn ri-edit-line text-white' ></i>
                                                             </Button>

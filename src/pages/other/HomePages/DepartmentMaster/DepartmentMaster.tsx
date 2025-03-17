@@ -17,6 +17,7 @@ interface Designation {
     departmentName: string;
     departmentCode: string;
     departmentDescription: string;
+    isDefault: number;
     status: number;
     createdBy: string;
     updatedBy: string;
@@ -66,12 +67,12 @@ const DesignationMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
         { id: 'departmentName', label: 'Department Name', visible: true },
         { id: 'departmentCode', label: 'Department Code', visible: true },
-        { id: 'defaultAuthorizedSignatory', label: 'Default Authorized Signatory', visible: true },
+        { id: 'departmentHead', label: 'Department Head', visible: true },
         { id: 'defaultAssignee', label: 'Default Assignee', visible: true },
-        { id: 'departmentDescription', label: 'Description', visible: true },
+        { id: 'description', label: 'Description', visible: true },
+        { id: 'isDefault', label: 'Default Department', visible: true },
         { id: 'status', label: 'Status', visible: true },
     ]);
-
 
     const handleOnDragEnd = (result: any) => {
         if (!result.destination) return;
@@ -90,11 +91,11 @@ const DesignationMaster = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`${config.API_URL}/Department/GetDepartment`, {
+            const response = await axiosInstance.get(`${config.API_URL}/Departments/GetDepartments`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                setDesignations(response.data.departmentList);
+                setDesignations(response.data.data);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -268,7 +269,7 @@ const DesignationMaster = () => {
                                 </Col>
                                 <Col lg={4}>
                                     <Form.Group controlId="searchDept">
-                                        <Form.Label>  Default Authorized Signatory</Form.Label>
+                                        <Form.Label>  Department Head</Form.Label>
                                         <Select
                                             name="searchDept"
                                             // value={departmentList.find(item => item.departmentName === searchDept) || null}
@@ -277,7 +278,7 @@ const DesignationMaster = () => {
                                             // getOptionLabel={(item) => item.departmentName}
                                             // getOptionValue={(item) => item.departmentName}
                                             isSearchable={true}
-                                            placeholder="Select   Default Authorized Signatory"
+                                            placeholder="Select Department Head"
                                             className="h45"
                                         />
                                     </Form.Group>
@@ -381,8 +382,8 @@ const DesignationMaster = () => {
                                                                     col.id === 'departmentName' ? 'fw-bold text-dark' : ''
                                                                 }
                                                             >
-                                                                {col.id === 'status' ? (
-                                                                    item.status === 1 ? ('Active') : ('Inactive')
+                                                                {col.id === 'isDefault' ? (
+                                                                    item.isDefault === 1 ? ('Active') : ('Inactive')
                                                                 ) : (
                                                                     <div>{item[col.id as keyof Designation]}</div>
                                                                 )}

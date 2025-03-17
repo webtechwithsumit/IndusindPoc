@@ -7,6 +7,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import PaginationComponent from '@/pages/other/Component/PaginationComponent';
 import axiosInstance from '@/utils/axiosInstance';
+import TabNavigation from '../../Component/TabNavigation';
+
 
 interface Product {
     id: number;
@@ -31,7 +33,7 @@ interface Column {
 }
 
 
-const NewProductPendingCirculation = () => {
+const SignedOffProductSGDOwner = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -57,7 +59,6 @@ const NewProductPendingCirculation = () => {
         { id: 'mobileNumber', label: 'Mobile Number', visible: true },
         { id: 'startDate', label: 'Start Date', visible: true },
         { id: 'dayslappesd', label: 'Day Laps', visible: true },
-        { id: 'queryCount', label: 'UnResolved Query', visible: true },
         { id: 'uploadedOn', label: 'SignOff By Department', visible: true },
     ]);
 
@@ -77,7 +78,7 @@ const NewProductPendingCirculation = () => {
     const fetchDetailsMain = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`${config.API_URL}/Product/GetProductCirculatedListForSignOff`, {
+            const response = await axiosInstance.get(`${config.API_URL}/Product/GetSignedOffProduct`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
@@ -103,6 +104,9 @@ const NewProductPendingCirculation = () => {
                     <Button variant="link" as={Link as any} to={`/pages/DiscussionList/${item.id}`} className="d-block text-start">
                         <i className="ri-file-list-line me-2"></i> View Status
                     </Button>
+                    <Button variant="link" onClick={() => handleSubmit(item)} className="d-block text-green">
+                        <i className="ri-file-list-line me-2"></i> Final Signoff
+                    </Button>
 
                 </Popover.Body>
             </Popover>
@@ -117,11 +121,65 @@ const NewProductPendingCirculation = () => {
         );
     };
 
+    const handleSubmit = async (item: any) => {
+        toast.dismiss();
+
+        // Extract product type
+        const productType = item.productName || 'DefaultType';
+
+        // Determine financial year dynamically
+        const currentYear = new Date().getFullYear();
+        const financialYear = `${(currentYear - 1) % 100}-${currentYear % 100}`;
+
+        // Find last reference number from existingRefNumbers
+        let newCount = 1; // Default if no previous records exist
+        let existingRefNumbers = project.map((p: any) => p.ref_Number);
+        if (existingRefNumbers.length > 0) {
+            const lastRef = existingRefNumbers
+                .filter(ref => ref.startsWith(`${productType}/${financialYear}`)) // Filter matching financial year
+                .map(ref => parseInt(ref.split('/')[2], 10)) // Extract numeric part
+                .filter(num => !isNaN(num)) // Ensure valid numbers
+                .sort((a, b) => b - a)[0]; // Get the highest number
+
+            newCount = lastRef ? lastRef + 1 : 1;
+        }
+
+        // Generate reference number
+        const refNumber = `${productType}/${financialYear}/${String(newCount).padStart(3, '0')}`;
+
+        const payload = {
+            id: item.id,
+            finalSignOff: 1,
+            circulatedStatus: 1,
+            isApproved: 1,
+            ref_Number: refNumber,
+        };
+
+        console.log('Payload:', payload);
+
+        try {
+            const apiUrl = `${config.API_URL}/Product/ApproveRejectProduct`;
+            const response = await axiosInstance.post(apiUrl, payload);
+
+            if (response.status === 200) {
+                toast.success(response.data.message || 'Approved Successfully');
+            } else {
+                toast.error(response.data.message || 'Failed to process request');
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Error Adding/Updating');
+            console.error('Error submitting:', error);
+        }
+    };
+
+
+
 
 
     return (
         <>
             <div className="mt-3">
+                <TabNavigation />
                 <Row>
                     <Col sm={12} >
                         <Card className="p-0">
@@ -130,7 +188,7 @@ const NewProductPendingCirculation = () => {
                                 <div className='bg-white p-2 pb-2'>
                                     <Row className=''>
                                         <div className="d-flex justify-content-between profilebar p-1">
-                                            <h4 className='text-primary d-flex align-items-center m-0'><i className="ri-file-list-line me-2 text-primary "></i>Un Resolved Query</h4>
+                                            <h4 className='text-primary d-flex align-items-center m-0'><i className="ri-file-list-line me-2 text-primary "></i>Signed-Off Given By SGD Owner </h4>
                                             <div className="d-flex justify-content-end bg-light w-50 profilebar">
                                                 <div className="input-group w-50 me-4">
                                                     <input
@@ -261,4 +319,4 @@ const NewProductPendingCirculation = () => {
     );
 };
 
-export default NewProductPendingCirculation;
+export default SignedOffProductSGDOwner;

@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 import configureFakeBackend from './common/api/fake-backend';
 import { AuthProvider, ThemeProvider } from './common/context';
@@ -18,16 +17,16 @@ axios.defaults.headers.common['Referrer-Policy'] = 'strict-origin-when-cross-ori
 configureFakeBackend();
 
 function App() {
-	React.useEffect(() => {
-		// Remove sensitive data from the DOM (if any)
-		const sensitiveElements = document.querySelectorAll('[data-sensitive]');
-		sensitiveElements.forEach(el => el.remove());
+	// React.useEffect(() => {
+	// 	// Remove sensitive data from the DOM (if any)
+	// 	const sensitiveElements = document.querySelectorAll('[data-sensitive]');
+	// 	sensitiveElements.forEach(el => el.remove());
 
-		// Example API call with security headers
-		axios.get('/api/secure-data')
-			.then(response => console.log(response.data))
-			.catch(error => console.error('API error:', error));
-	}, []);
+	// 	// Example API call with security headers
+	// 	axios.get('/api/secure-data')
+	// 		.then(response => console.log(response.data))
+	// 		.catch(error => console.error('API error:', error));
+	// }, []);
 
 	return (
 		<ThemeProvider>

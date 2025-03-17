@@ -1,8 +1,7 @@
 import React, { ReactNode, useEffect } from 'react'
-import axisBank from '@/assets/images/clay.png'
 
 
-import { Card, Col, Container, Image, Row } from 'react-bootstrap'
+import { Col, Container, Image, Row } from 'react-bootstrap'
 
 interface AccountLayoutProps {
 	pageImage?: string

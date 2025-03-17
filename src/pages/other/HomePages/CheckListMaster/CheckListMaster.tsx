@@ -78,7 +78,7 @@ const DesignationMaster = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`${config.API_URL}/CheckList/GetCheckList`, {
+            const response = await axiosInstance.get(`${config.API_URL}/CheckList/GetCheckList/GetCheckList`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {

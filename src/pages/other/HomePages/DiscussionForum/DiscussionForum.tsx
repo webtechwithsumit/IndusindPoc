@@ -67,7 +67,7 @@ const DiscussionForum = () => {
             const response = await axiosInstance.get(`${config.API_URL}/Product/GetDiscussionFormSummaryList`, {
                 params: {
                     productId: id,
-                    departmentName: user?.roleName === 'Convener level 2' ? department : user?.departmentName
+                    departmentName: user?.roleName !== 'Initiator' ? user?.departmentName : department
                 }
             });
             if (response.data.isSuccess) {

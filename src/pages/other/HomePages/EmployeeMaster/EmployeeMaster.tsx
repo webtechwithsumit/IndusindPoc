@@ -11,7 +11,7 @@ import axiosInstance from '@/utils/axiosInstance';
 
 
 interface Employee {
-    id: number;
+    _id: number;
     userName: string;
     email: string;
     mobileNumber: string;
@@ -19,6 +19,7 @@ interface Employee {
     departmentID: number;
     departmentName: string;
     status: number;
+    roles: string[];
     createdBy: string;
     updatedBy: string;
 }
@@ -67,12 +68,13 @@ const EmployeeMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'name', label: 'Employee Name', visible: true },
-        { id: 'userName', label: 'User Name', visible: true },
+        { id: 'fullName', label: 'Employee Name', visible: true },
+        { id: 'userId', label: 'User Name', visible: true },
         { id: 'email', label: 'Email', visible: true },
-        { id: 'mobileNumber', label: 'Mobile Number', visible: true },
-        { id: 'roleName', label: 'Role', visible: true },
-        { id: 'departmentName', label: 'Department Name', visible: true },
+        { id: 'phoneNumber', label: 'Mobile Number', visible: true },
+        { id: 'roles', label: 'Role', visible: true },
+        { id: 'departmentName', label: 'Department', visible: true },
+        { id: 'designation', label: 'Designation ', visible: true },
         { id: 'status', label: 'Status', visible: true },
     ]);
 
@@ -173,8 +175,8 @@ const EmployeeMaster = () => {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                setEmployee(response.data.getEmployees);
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
+                setEmployee(response.data.data);
+                setTotalPages(Math.ceil(response.data.totalCount / 20));
             } else {
                 console.error(response.data.message);
             }
@@ -223,7 +225,7 @@ const EmployeeMaster = () => {
                 'Updated By'
             ],
             ...data.map(manager => [
-                manager.id,
+                manager._id,
                 manager.managerName,
                 manager.departmentID,
                 manager.status,
@@ -295,14 +297,14 @@ const EmployeeMaster = () => {
                                 <Form.Label>Manager Name</Form.Label>
                                 <Select
                                     name="searchEmployee"
-                                    value={employeeList.find(emp => emp.employeeName === searchEmployee) || null} // handle null
-                                    onChange={(selectedOption) => setSearchEmployee(selectedOption ? selectedOption.employeeName : "")} // null check
-                                    options={employeeList}
-                                    getOptionLabel={(emp) => emp.employeeName}
-                                    getOptionValue={(emp) => emp.employeeName.split('-')[0].trim()}
-                                    isSearchable={true}
-                                    placeholder="Select Manager Name"
-                                    className="h45"
+                                // value={employeeList.find(emp => emp.employeeName === searchEmployee) || null} // handle null
+                                // onChange={(selectedOption) => setSearchEmployee(selectedOption ? selectedOption.employeeName : "")} // null check
+                                // options={employeeList}
+                                // getOptionLabel={(emp) => emp.employeeName}
+                                // getOptionValue={(emp) => emp.employeeName.split('-')[0].trim()}
+                                // isSearchable={true}
+                                // placeholder="Select Manager Name"
+                                // className="h45"
                                 />
                             </Form.Group>
                         </Col>
@@ -391,7 +393,8 @@ const EmployeeMaster = () => {
                             <DragDropContext onDragEnd={handleOnDragEnd}>
                                 <Table hover className='bg-white custom-table'>
                                     <thead>
-                                        <Droppable droppableId="columns" direction="horizontal">
+                                        <Droppable droppableId="columns" direction="horizontal" isDropDisabled={false}>
+
                                             {(provided) => (
                                                 <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
                                                     <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
@@ -418,21 +421,25 @@ const EmployeeMaster = () => {
                                     </thead>
                                     <tbody>
                                         {employee.length > 0 ? (
-                                            employee.slice(0, 10).map((item, index) => (
-                                                <tr key={item.id}>
+                                            employee.map((item, index) => (
+                                                <tr key={item._id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}>
-
-                                                            {col.id === 'status' ? (item.status === 1 ? 'Active' : 'Inactive') : (
-                                                                <div>{item[col.id as keyof Employee]}</div>
-                                                            )}
+                                                            {
+                                                                // col.id === 'status' ? (item.status === 1 ? 'Active' : 'Inactive') :
+                                                                    col.id === 'roles' ? (
+                                                                        <div dangerouslySetInnerHTML={{ __html: item.roles.join('<br />') }} />
+                                                                    ) :
+                                                                        (
+                                                                            <div>{item[col.id as keyof Employee]}</div>
+                                                                        )}
 
                                                         </td>
                                                     ))}
 
                                                     <td className='text-center'>
-                                                        <Link to={`/pages/EmployeeMasterinsert/${item.id}`}>
+                                                        <Link to={`/pages/EmployeeMasterinsert/${item._id}`}>
                                                             <Button variant='primary' className='p-0 text-white me-3'>
                                                                 <i className='btn ri-edit-line text-white' ></i>
                                                             </Button>

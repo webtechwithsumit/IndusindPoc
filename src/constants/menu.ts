@@ -43,7 +43,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				url: '/pages/DepartmentMaster',
 				icon: 'ri-building-line',
 				parentKey: 'Masters',
-				roles: ['Convener level 2']
+				// roles: ['Convener L2']
 			},
 			{
 				key: 'Manage Role',
@@ -51,7 +51,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				url: '/pages/RoleMaster',
 				icon: 'ri-calendar-todo-line',
 				parentKey: 'Masters',
-				roles: ['Convener level 2']
+				// roles: ['Convener L2']
 			},
 			{
 				key: 'Empployee Member',
@@ -59,7 +59,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				url: '/pages/EmployeeMaster',
 				icon: 'ri-group-line',
 				parentKey: 'Masters',
-				roles: ['Convener level 2']
+				// roles: ['Convener L2']
 			},
 			{
 				key: 'Manage Product Type',
@@ -67,7 +67,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				url: '/pages/ProductTypeMaster',
 				icon: 'ri-tools-line',
 				parentKey: 'Masters',
-				roles: ['Convener level 2']
+				// roles: ['Convener L2']
 
 			},
 
@@ -77,7 +77,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				url: '/pages/CheckListMaster',
 				icon: 'ri-file-list-3-line',
 				parentKey: 'Masters',
-				roles: ['Convener level 2']
+				// roles: ['Convener L2']
 			},
 
 
@@ -87,86 +87,26 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				url: '/pages/Addholiday',
 				icon: 'ri-calendar-todo-line',
 				parentKey: 'Masters',
-				roles: ['Convener level 2']
+				// roles: ['Convener L2']
 
 			},
-
 			{
-				key: 'Manage Product',
+				key: 'AddProduct',
 				label: ' Manage Product',
-				url: '/pages/ProductMaster',
+				url: '/AddProduct',
 				icon: 'ri-box-3-line',
 				parentKey: 'Masters',
-				children: [
-					{
-						key: 'Product Master',
-						label: 'Product Master',
-						url: '/pages/ProductMaster',
-						parentKey: 'Manage Product',
-						roles: ['Department level 2']
-					},
-					{
-						key: 'Own Department Product',
-						label: 'Own Department Product',
-						url: '/pages/ProductMaster/OwnDepartmentProduct',
-						parentKey: 'Manage Product',
-						roles: ['Department level 2']
-					},
-					{
-						key: 'Other Department Product',
-						label: 'Other Department Product',
-						url: '/pages/ProductMaster/OtherDepartmentProduct',
-						parentKey: 'Manage Product',
-						roles: ['Department level 2']
-					},
-					{
-						key: 'Products Pending Circulation',
-						label: 'Products Pending Circulation',
-						url: '/pages/ProductMaster/PendingCirculation',
-						parentKey: 'Manage Product',
-						roles: ['Convener level 2']
-					},
-					{
-						key: 'Products Pending Sign-Off',
-						label: 'Products Pending Sign-Off',
-						url: '/pages/ProductMaster/PendingSignOff',
-						parentKey: 'Manage Product',
-						roles: ['Convener level 2']
-					},
-					{
-						key: 'Products Pending Final Sign-Off',
-						label: 'Products Pending Final Sign-Off',
-						url: '/pages/ProductMaster/PendingFinalSignOff',
-						parentKey: 'Manage Product',
-						roles: ['Convener level 2']
-					},
-					{
-						key: 'Sign-Off Product',
-						label: 'Signed Off Products',
-						url: '/pages/ProductMaster/SignedOffProduct',
-						parentKey: 'Manage Product',
-						roles: ['Department level 2']
-					},
-					{
-						key: 'Sign-Off Product',
-						label: 'Signed Off Products',
-						url: '/pages/ProductMaster/SignedOffProducts',
-						parentKey: 'Manage Product',
-						roles: ['Convener level 2']
-					},
-					{
-						key: 'Rejected Product',
-						label: 'Rejected Products',
-						url: '/pages/ProductMaster/RejectedProduct',
-						parentKey: 'Manage Product',
-					},
-					{
-						key: 'Launched Product',
-						label: 'Launched Products',
-						url: '/pages/ProductMaster/LaunchedProduct',
-						parentKey: 'Manage Product',
-					},
-				],
+				// roles: ['Initiator']
+
+			},
+			{
+				key: 'AddProduct',
+				label: ' Manage Product',
+				url: '/PendingCirculation',
+				icon: 'ri-box-3-line',
+				parentKey: 'Masters',
+				roles: ['SDG Owner']
+
 			},
 
 		],
@@ -184,13 +124,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				icon: 'ri-slideshow-line',
 				parentKey: 'ApprovalTask',
 			},
-			// {
-			//   key: 'SubTask Master',
-			//   label: 'SubTask Master',
-			//   url: '/pages/SubTaskMaster',
-			//   icon: 'ri-slideshow-line',
-			//   parentKey: 'TaskMaster',
-			// },
 		],
 	},
 
@@ -202,7 +135,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		label: 'Collaboration',
 		url: '/pages/AdhocTempleteList',
 		icon: 'ri-chat-1-line',
-		roles: ['Convener level 2'],
+		roles: ['Convener L2'],
 		children: [
 			{
 				key: 'Discussion Forum',
@@ -226,7 +159,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		label: 'Reports',
 		url: '/pages/AdhocTempleteList',
 		icon: 'ri-bar-chart-2-line',
-		roles: ['Convener level 2'],
+		roles: ['Convener L2'],
 		children: [
 			{
 				key: 'MProduct Status ReportsIS',
@@ -292,7 +225,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		label: 'Legal Management',
 		url: '/pages/AdhocTempleteList',
 		icon: 'ri-shield-line',
-		roles: ['Convener level 2'],
+		roles: ['Convener L2'],
 		children: [
 			{
 				key: 'Agreements',
@@ -366,7 +299,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		label: 'Tools',
 		url: '/pages/AdhocTempleteList',
 		icon: 'ri-briefcase-2-line',
-		roles: ['Convener level 2'],
+		roles: ['Convener L2'],
 		children: [
 			{
 				key: 'Process Configuration',
@@ -388,7 +321,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		key: 'userGuide',
 		label: 'Help',
 		url: '/pages/AdhocTempleteList',
-		roles: ['Convener level 2'],
+		roles: ['Convener L2'],
 		icon: 'ri-question-mark',
 		children: [
 			{

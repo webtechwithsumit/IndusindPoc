@@ -7,30 +7,29 @@ import { toast } from 'react-toastify';
 import axiosInstance from '@/utils/axiosInstance';
 
 interface Employee {
-    id: number;
-    userName: string;
-    name: string;
+    _id: string
+    userId: string;
+    fullName: string;
     email: string;
-    mobileNumber: string;
-    managerName: string;
-    departmentID: number;
-    officeLandline: string;
+    phoneNumber: string;
+    departmentId: string;
     departmentName: string;
-    extensionNumber: string;
+    designation: string;
+    location: string;
+    status: string;
+    roles: string[];
     password: string;
-    status: number;
     createdBy: string;
     updatedBy: string;
-    roleName: string;
-    roleID: number;
 }
 
+
 interface Department {
-    id: number;
+    id: string;
     departmentName: string;
 }
 interface RoleName {
-    id: number;
+    _id: string;
     roleName: string;
 }
 
@@ -45,23 +44,22 @@ const EmployeeMasterInsert = () => {
     const [departmentList, setDepartmentList] = useState<Department[]>([]);
     const [roleList, setRoleList] = useState<RoleName[]>([]);
     const [employee, setEmployee] = useState<Employee>({
-        id: 0,
-        userName: '',
-        name: '',
+        _id: '',
+        userId: '',
+        fullName: '',
         email: '',
-        mobileNumber: '',
-        managerName: '',
-        departmentID: 0,
+        phoneNumber: '',
+        departmentId: '',
         departmentName: '',
-        officeLandline: '',
+        designation: '',
+        location: '',
         password: '',
-        extensionNumber: '',
-        status: 0,
+        status: 'Active',
+        roles: [],
         createdBy: '',
-        roleID: 0,
-        roleName: '',
-        updatedBy: ''
+        updatedBy: '',
     });
+
 
     useEffect(() => {
         toast.dismiss();
@@ -83,13 +81,15 @@ const EmployeeMasterInsert = () => {
         }
     }, [id]);
 
+
     const fetchEmployeeById = async (id: string) => {
         try {
-            const response = await axiosInstance.get(`${config.API_URL}/Employee/GetEmployee`, {
-                params: { id }
-            });
+            const response = await axiosInstance.get(`${config.API_URL}/Employee/${id}`);
+            console.log(response)
             if (response.data.isSuccess) {
-                const fetchedEmployee = response.data.getEmployees[0];
+                console.log("hi")
+                const fetchedEmployee = response.data.employee;
+                console.log(fetchedEmployee)
                 setEmployee(fetchedEmployee);
             } else {
                 console.error(response.data.message);
@@ -114,53 +114,57 @@ const EmployeeMasterInsert = () => {
         };
 
         fetchData('CommonDropdown/GetDepartmentList?Flag=2', setDepartmentList, 'getDepartmentLists');
-        fetchData('CommonDropdown/GetRoleMasterList', setRoleList, 'roleMasterLists');
+        fetchData('CommonDropdown/GetRoleList', setRoleList, 'roles');
 
     }, []);
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         if (e) {
-            const { name: eventName, value, type } = e.target;
-
-            if (type === 'checkbox') {
-                const checked = (e.target as HTMLInputElement).checked;
-                setEmployee({
-                    ...employee,
-                    [eventName]: checked
-                });
-            } else if (type === 'radio') {
-                const parsedValue = parseInt(value, 10); // Parse radio button value as an integer
-                setEmployee({
-                    ...employee,
-                    [eventName]: parsedValue
-                });
-            } else {
-                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                setEmployee({
-                    ...employee,
-                    [eventName]: inputValue
-                });
-            }
-        } else if (name) {
+          const { name: eventName, value, type } = e.target;
+      
+          if (type === 'checkbox') {
+            const checked = (e.target as HTMLInputElement).checked;
             setEmployee({
-                ...employee,
-                [name]: value
+              ...employee,
+              [eventName]: checked
             });
+          } else {
+            setEmployee({
+              ...employee,
+              [eventName]: value // No parsing, we just take the string directly
+            });
+          }
+        } else if (name) {
+          setEmployee({
+            ...employee,
+            [name]: value
+          });
         }
-    };
-
+      };
 
 
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
-        if (!employee.userName) errors.userName = 'User Name is required';
-        if (!employee.email) errors.email = 'Email is required';
-        if (!employee.mobileNumber) errors.mobileNumber = 'Mobile Number is required';
-        if (!employee.departmentID) errors.departmentID = 'Department Name is required';
-        if (!employee.roleID) errors.roleID = 'Role Name is required';
+
+        if (!employee.fullName.trim()) errors.fullName = 'Full Name is required';
+        if (!employee.email.trim()) errors.email = 'Email is required';
+        if (!employee.phoneNumber.trim()) errors.phoneNumber = 'Phone Number is required';
+        if (!employee.departmentId.trim()) errors.departmentId = 'Department Name is required';
+        if (!employee.designation.trim()) errors.designation = 'Designation is required';
+        if (!employee.location.trim()) errors.location = 'Location is required';
+        if (!employee.password.trim()) errors.password = 'Password is required';
+
+        // Validate roles (array)
+        if (!employee.roles || employee.roles.length === 0) {
+            errors.roles = 'At least one role must be selected';
+        }
+
+        if (!employee.status.trim()) errors.status = 'Status is required';
+
         setValidationErrors(errors);
         return Object.keys(errors).length === 0;
     };
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -174,13 +178,20 @@ const EmployeeMasterInsert = () => {
         const payload = {
             ...employee,
             createdBy: editMode ? employee.createdBy : empName,
-            updatedBy: editMode ? empName : '',
+            updatedBy: editMode ? empName : ''
         };
 
         try {
-            const apiUrl = `${config.API_URL}/Employee/InsertUpdateEmployee`;
-            const response = await axiosInstance.post(apiUrl, payload);
+            const apiUrl = editMode
+                ? `${config.API_URL}/Employee/updateEmployee`
+                : `${config.API_URL}/Employee/InsertEmployee`;
+
+            const axiosMethod = editMode ? axiosInstance.put : axiosInstance.post;
+
+            const response = await axiosMethod(apiUrl, payload);
+
             if (response.status === 200) {
+                toast.success(editMode ? 'Employee updated successfully!' : 'Employee added successfully!');
                 navigate('/pages/EmployeeMaster', {
                     state: {
                         successMessage: editMode
@@ -192,10 +203,11 @@ const EmployeeMasterInsert = () => {
                 toast.error(response.data.message || 'Failed to process request');
             }
         } catch (error: any) {
-            toast.error(error.message || 'Error Adding/Updating');
+            toast.error(error.message || 'Error Adding/Updating Employee');
             console.error('Error submitting employee:', error);
         }
     };
+
 
 
     return (
@@ -210,34 +222,23 @@ const EmployeeMasterInsert = () => {
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
+                            {/* Full Name */}
                             <Col lg={6}>
-                                <Form.Group controlId="name" className="mb-3">
+                                <Form.Group controlId="fullName" className="mb-3">
                                     <Form.Label><i className="ri-user-line"></i> Full Name <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="name"
-                                        value={employee.name}
+                                        name="fullName"
+                                        value={employee.fullName}
                                         onChange={handleChange}
                                         placeholder='Enter Full Name'
-                                        className={validationErrors.name ? "input-border" : ""}
+                                        className={validationErrors.fullName ? "input-border" : ""}
                                     />
-                                    {validationErrors.name && <small className="text-danger">{validationErrors.name}</small>}
+                                    {validationErrors.fullName && <small className="text-danger">{validationErrors.fullName}</small>}
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="userName" className="mb-3">
-                                    <Form.Label><i className="ri-user-line"></i> User Name <span className='text-danger'>*</span></Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="userName"
-                                        value={employee.userName}
-                                        onChange={handleChange}
-                                        placeholder='Enter User Name'
-                                        className={validationErrors.userName ? "input-border" : ""}
-                                    />
-                                    {validationErrors.userName && <small className="text-danger">{validationErrors.userName}</small>}
-                                </Form.Group>
-                            </Col>
+
+                            {/* Email */}
                             <Col lg={6}>
                                 <Form.Group controlId="email" className="mb-3">
                                     <Form.Label><i className="ri-mail-line"></i> Email <span className='text-danger'>*</span></Form.Label>
@@ -252,51 +253,84 @@ const EmployeeMasterInsert = () => {
                                     {validationErrors.email && <small className="text-danger">{validationErrors.email}</small>}
                                 </Form.Group>
                             </Col>
+
+                            {/* Phone Number */}
                             <Col lg={6}>
-                                <Form.Group controlId="mobileNumber" className="mb-3">
-                                    <Form.Label><i className="ri-phone-line"></i> Mobile Number <span className='text-danger'>*</span></Form.Label>
+                                <Form.Group controlId="phoneNumber" className="mb-3">
+                                    <Form.Label><i className="ri-phone-line"></i> Phone Number <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="mobileNumber"
-                                        value={employee.mobileNumber}
+                                        name="phoneNumber"
+                                        value={employee.phoneNumber}
                                         onChange={handleChange}
-                                        placeholder='Enter Mobile Number'
-                                        className={validationErrors.mobileNumber ? "input-border" : ""}
+                                        placeholder='Enter Phone Number'
+                                        className={validationErrors.phoneNumber ? "input-border" : ""}
                                     />
-                                    {validationErrors.mobileNumber && <small className="text-danger">{validationErrors.mobileNumber}</small>}
+                                    {validationErrors.phoneNumber && <small className="text-danger">{validationErrors.phoneNumber}</small>}
                                 </Form.Group>
                             </Col>
+
+                            {/* Department Name */}
                             <Col lg={6}>
-                                <Form.Group controlId="officeLandline" className="mb-3">
-                                    <Form.Label><i className="ri-phone-line"></i> Office Landline <span className='text-danger'>*</span></Form.Label>
+                                <Form.Group controlId="departmentId" className="mb-3">
+                                    <Form.Label><i className="ri-building-line"></i> Department Name <span className='text-danger'>*</span></Form.Label>
+                                    <Select
+                                        name="departmentId"
+                                        value={departmentList.find((dept) => dept.id === employee.departmentId)}
+                                        onChange={(selectedOption) => {
+                                            setEmployee({
+                                                ...employee,
+                                                departmentId: selectedOption?.id || '',
+                                                departmentName: selectedOption?.departmentName || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(dept) => dept.departmentName}
+                                        getOptionValue={(dept) => String(dept.id)}
+                                        options={departmentList}
+                                        isSearchable
+                                        placeholder="Select Department Name"
+                                        className={validationErrors.departmentId ? "input-border" : ""}
+                                    />
+                                    {validationErrors.departmentId && <small className="text-danger">{validationErrors.departmentId}</small>}
+                                </Form.Group>
+                            </Col>
+
+                            {/* Designation */}
+                            <Col lg={6}>
+                                <Form.Group controlId="designation" className="mb-3">
+                                    <Form.Label><i className="ri-briefcase-line"></i> Designation <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="officeLandline"
-                                        value={employee.officeLandline}
+                                        name="designation"
+                                        value={employee.designation}
                                         onChange={handleChange}
-                                        placeholder='Enter Office Landline'
-                                        className={validationErrors.officeLandline ? "input-border" : ""}
+                                        placeholder='Enter Designation'
+                                        className={validationErrors.designation ? "input-border" : ""}
                                     />
-                                    {validationErrors.officeLandline && <small className="text-danger">{validationErrors.officeLandline}</small>}
+                                    {validationErrors.designation && <small className="text-danger">{validationErrors.designation}</small>}
                                 </Form.Group>
                             </Col>
+
+                            {/* Location */}
                             <Col lg={6}>
-                                <Form.Group controlId="extensionNumber" className="mb-3">
-                                    <Form.Label><i className="ri-phone-line"></i> Extension Number <span className='text-danger'>*</span></Form.Label>
+                                <Form.Group controlId="location" className="mb-3">
+                                    <Form.Label><i className="ri-map-pin-line"></i> Location <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="extensionNumber"
-                                        value={employee.extensionNumber}
+                                        name="location"
+                                        value={employee.location}
                                         onChange={handleChange}
-                                        placeholder='Enter Office Landline'
-                                        className={validationErrors.extensionNumber ? "input-border" : ""}
+                                        placeholder='Enter Location'
+                                        className={validationErrors.location ? "input-border" : ""}
                                     />
-                                    {validationErrors.extensionNumber && <small className="text-danger">{validationErrors.extensionNumber}</small>}
+                                    {validationErrors.location && <small className="text-danger">{validationErrors.location}</small>}
                                 </Form.Group>
                             </Col>
+
+                            {/* Password */}
                             <Col lg={6}>
                                 <Form.Group controlId="password" className="mb-3">
-                                    <Form.Label><i className="ri-phone-line"></i> Password <span className='text-danger'>*</span></Form.Label>
+                                    <Form.Label><i className="ri-lock-line"></i> Password <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="password"
@@ -308,55 +342,31 @@ const EmployeeMasterInsert = () => {
                                     {validationErrors.password && <small className="text-danger">{validationErrors.password}</small>}
                                 </Form.Group>
                             </Col>
+
+                            {/* Roles (Multi-select) */}
                             <Col lg={6}>
-                                <Form.Group controlId="departmentID" className="mb-3">
-                                    <Form.Label> <i className="ri-building-line"></i> Department Name <span className='text-danger'>*</span></Form.Label>
+                                <Form.Group controlId="roles" className="mb-3">
+                                    <Form.Label><i className="ri-user-settings-line"></i> Roles <span className='text-danger'>*</span></Form.Label>
                                     <Select
-                                        name="departmentID"
-                                        value={departmentList.find((dept) => dept.id === employee.departmentID)}
-                                        onChange={(selectedOption) => {
+                                        name="roles"
+                                        value={employee.roles.map(role => ({ value: role, label: role }))}
+                                        onChange={(selectedOptions) => {
                                             setEmployee({
                                                 ...employee,
-                                                departmentID: selectedOption?.id || 0,
-                                                departmentName: selectedOption?.departmentName || '',
+                                                roles: selectedOptions.map((option) => option.value),
                                             });
                                         }}
-                                        getOptionLabel={(dept) => dept.departmentName}
-                                        getOptionValue={(dept) => String(dept.id)}
-                                        options={departmentList}
-                                        isSearchable={true}
-                                        placeholder="Select Department Name"
-                                        className={validationErrors.departmentID ? "input-border" : ""}
+                                        options={roleList.map((role) => ({ value: role.roleName, label: role.roleName }))}
+                                        isSearchable
+                                        isMulti
+                                        placeholder="Select Roles"
+                                        className={validationErrors.roles ? "input-border" : ""}
                                     />
-                                    {validationErrors.departmentID && <small className="text-danger">{validationErrors.departmentID}</small>}
+                                    {validationErrors.roles && <small className="text-danger">{validationErrors.roles}</small>}
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="roleID" className="mb-3">
-                                    <Form.Label>Role  <span className='text-danger'>*</span></Form.Label>
-                                    <Select
-                                        name="roleID"
-                                        value={roleList.find((dept) => dept.id === employee.roleID)}
-                                        onChange={(selectedOption) => {
-                                            setEmployee({
-                                                ...employee,
-                                                roleID: selectedOption?.id || 0,
-                                                roleName: selectedOption?.roleName || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(dept) => dept.roleName}
-                                        getOptionValue={(dept) => String(dept.id)}
-                                        options={roleList}
-                                        isSearchable={true}
-                                        placeholder="Select Department Name"
-                                        className={validationErrors.roleID ? "input-border" : ""}
-                                    />
-                                    {validationErrors.roleID && (
-                                        <small className="text-danger">{validationErrors.roleID}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
+                            {/* Status (Active / Inactive Radio Buttons) */}
                             <Col lg={6}>
                                 <Form.Group controlId="status" className="mb-3">
                                     <Form.Label><i className="ri-flag-line"></i> Status</Form.Label>
@@ -366,9 +376,9 @@ const EmployeeMasterInsert = () => {
                                             type="radio"
                                             id="statusActive"
                                             name="status"
-                                            value={1}
+                                            value="Active"
                                             label="Active"
-                                            checked={employee.status === 1}
+                                            checked={employee.status === 'Active'}
                                             onChange={handleChange}
                                         />
                                         <Form.Check
@@ -376,20 +386,20 @@ const EmployeeMasterInsert = () => {
                                             type="radio"
                                             id="statusInactive"
                                             name="status"
-                                            value={0}
+                                            value="Inactive"
                                             label="Inactive"
-                                            checked={employee.status === 0}
+                                            checked={employee.status === 'Inactive'}
                                             onChange={handleChange}
                                         />
                                     </div>
                                 </Form.Group>
                             </Col>
+
+                            {/* Action Buttons */}
                             <Col className='align-items-end d-flex justify-content-end mb-3'>
                                 <div>
                                     <Link to={'/pages/EmployeeMaster'}>
-                                        <Button variant="primary">
-                                            Back
-                                        </Button>
+                                        <Button variant="primary">Back</Button>
                                     </Link>
                                     &nbsp;
                                     <Button variant="primary" type="submit">
@@ -399,6 +409,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                         </Row>
                     </Form>
+
                 </div>
             </div>
         </div>

@@ -65,6 +65,8 @@ const AssigneeDepartment = () => {
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
     const [selectDefaultDepartments, setSelectDefaultDepartments] = useState(false);
+    const [employeeLists, setEmployeeLists] = useState<{ [key: string]: EmployeeList[] }>({});
+
     const [isAllDepartments, setIsAllDepartments] = useState(false);
     const [productDetails, setProductDetails] = useState<ProductDetails>({
         id: 0,
@@ -164,14 +166,26 @@ const AssigneeDepartment = () => {
 
     const fetchEmployeesByDepartment = async (departmentName: string) => {
         try {
+            if (employeeLists[departmentName]) {
+                return employeeLists[departmentName]; // Return cached data if already fetched
+            }
+
             const response = await axiosInstance.get(
                 `${config.API_URL}/CommonDropdown/EmployeeList?Flag=3&DepartmentName=${departmentName}`
             );
 
             if (response.data.isSuccess) {
-                return response.data.employees;
+                const fetchedEmployees = response.data.employees;
+
+                // Update employee list for the specific department
+                setEmployeeLists((prev) => ({
+                    ...prev,
+                    [departmentName]: fetchedEmployees,
+                }));
+
+                return fetchedEmployees;
             } else {
-                console.error('Failed to fetch employees for department:', departmentName);
+                console.error(`Failed to fetch employees for ${departmentName}`);
                 return [];
             }
         } catch (error) {
@@ -179,6 +193,7 @@ const AssigneeDepartment = () => {
             return [];
         }
     };
+
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -247,21 +262,26 @@ const AssigneeDepartment = () => {
         setDepartments((prev) => ({ ...prev, departmentList: updatedList }));
     };
 
+
+
     const handleAdditionalMemberChange = (index: number, selectedOptions: MultiValue<EmployeeList | null>) => {
-        const updatedList = [...departments.departmentList];
+        setDepartments((prev) => {
+            const updatedList = [...prev.departmentList];
 
-        updatedList[index] = {
-            ...updatedList[index],
-            additionalMember: selectedOptions
-                .filter((opt): opt is EmployeeList => opt !== null)
-                .map((opt) => ({
-                    id: opt.userName ?? '',
-                    name: opt.employeeName ?? '',
-                })),
-        };
+            updatedList[index] = {
+                ...updatedList[index],
+                additionalMember: selectedOptions
+                    .filter((opt): opt is EmployeeList => opt !== null)
+                    .map((opt) => ({
+                        id: opt.userName ?? '',
+                        name: opt.employeeName ?? '',
+                    })),
+            };
 
-        setDepartments((prev) => ({ ...prev, departmentList: updatedList }));
+            return { ...prev, departmentList: updatedList };
+        });
     };
+
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -301,7 +321,7 @@ const AssigneeDepartment = () => {
                     const apiUrl2 = `${config.API_URL}/DiscussionForm/InsertDiscussionForm`;
                     const response2 = await axiosInstance.post(apiUrl2, payload2);
                     if (response2.status === 200) {
-                        navigate('/pages/ProductMaster/PendingSignOff', {
+                        navigate('/PendingSignOff', {
                             state: {
                                 successMessage: `Record added successfully!`
                             }
@@ -575,20 +595,21 @@ const AssigneeDepartment = () => {
                                                         <Select
                                                             name={`additionalMember-${index}`}
                                                             value={department.additionalMember
-                                                                .map((member) => employeeList.find((emp) => emp.userName === member.id) || null)
+                                                                .map((member) => employeeLists[department.departmentName]?.find((emp) => emp.userName === member.id) || null)
                                                                 .filter((emp): emp is EmployeeList => emp !== null)}
                                                             onFocus={async () => {
-                                                                const departmentEmployees = await fetchEmployeesByDepartment(department.departmentName);
-                                                                setEmployeeList(departmentEmployees);
+                                                                await fetchEmployeesByDepartment(department.departmentName);
                                                             }}
                                                             onChange={(selectedOptions) => handleAdditionalMemberChange(index, selectedOptions)}
                                                             getOptionLabel={(emp) => emp.employeeName}
                                                             getOptionValue={(emp) => emp.userName}
-                                                            options={employeeList}
+                                                            options={employeeLists[department.departmentName] || []}
                                                             isSearchable
                                                             placeholder="Select Additional Members"
                                                             isMulti
                                                         />
+
+
                                                     </Form.Group>
 
 

@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import PaginationComponent from '@/pages/other/Component/PaginationComponent';
 import axiosInstance from '@/utils/axiosInstance';
+import TabNavigation from '../../Component/TabNavigation';
 
 interface Product {
     id: number;
@@ -57,7 +58,6 @@ const NewProductPendingCirculation = () => {
         { id: 'mobileNumber', label: 'Mobile Number', visible: true },
         { id: 'startDate', label: 'Start Date', visible: true },
         { id: 'dayslappesd', label: 'Day Laps', visible: true },
-        { id: 'queryCount', label: 'UnResolved Query', visible: true },
         { id: 'uploadedOn', label: 'SignOff By Department', visible: true },
     ]);
 
@@ -97,7 +97,7 @@ const NewProductPendingCirculation = () => {
         const popover = (
             <Popover id={`popover-action-${item.id}`} className="shadow">
                 <Popover.Body className="p-2">
-                    <Button variant="link" as={Link as any} to={`/pages/ProductMaster/${item.id}`} className="d-block text-start">
+                    <Button variant="link" as={Link as any} to={`/AddProduct/${item.id}`} className="d-block text-start">
                         <i className="ri-file-list-line me-2"></i> Document
                     </Button>
                     <Button variant="link" as={Link as any} to={`/pages/DiscussionList/${item.id}`} className="d-block text-start">
@@ -122,6 +122,7 @@ const NewProductPendingCirculation = () => {
     return (
         <>
             <div className="mt-3">
+            <TabNavigation />
                 <Row>
                     <Col sm={12} >
                         <Card className="p-0">
@@ -130,7 +131,7 @@ const NewProductPendingCirculation = () => {
                                 <div className='bg-white p-2 pb-2'>
                                     <Row className=''>
                                         <div className="d-flex justify-content-between profilebar p-1">
-                                            <h4 className='text-primary d-flex align-items-center m-0'><i className="ri-file-list-line me-2 text-primary "></i>Un Resolved Query</h4>
+                                            <h4 className='text-primary d-flex align-items-center m-0'><i className="ri-file-list-line me-2 text-primary "></i>Product Pending Sign Off </h4>
                                             <div className="d-flex justify-content-end bg-light w-50 profilebar">
                                                 <div className="input-group w-50 me-4">
                                                     <input

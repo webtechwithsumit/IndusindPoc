@@ -4,23 +4,19 @@ import config from '@/config';
 
 // Define the User type based on API response
 type User = {
-	emailID?: string;
-	userName?: string;
-	employeeName: string;
-	roles: string;
-	roleID: number;
-	roleName: string;
-	mobileNumber: string;
-	officeLandLine?: string;
-	extensionNumber?: string;
-	departmentID?: number;
+	userId: string;
+	fullName: string;
+	email: string;
+	designation: string;
+	roleID?: number;
+	roleName?: string;
+	mobileNumber?: string;
+	departmentId?: string;
 	departmentName?: string;
-	status: number;
-	createdBy?: string;
-	createdDate?: string;
-	updatedBy?: string;
-	updatedDate?: string;
-	token?: string;
+	status?: number;
+	multirole?: string[];
+	roles?: string;
+	token: string;
 };
 
 // Define the shape of the AuthContext
@@ -47,8 +43,8 @@ export function useAuthContext() {
 }
 
 // Storage keys
-const authSessionKey = '_AUTH_SESSION';
-const authTokenKey = '_AUTH_TOKEN';
+const authSessionKey = '_AUTH_SESSION_PPAC';
+const authTokenKey = '_AUTH_TOKEN_PPAC';
 
 // AuthProvider component
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -76,28 +72,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	// Login function with API call
 	const login = async (email: string, password: string): Promise<{ status: number; message?: string }> => {
 		try {
-			const response = await axios.post(`${config.API_URL}/Login/Login`, { email, password });
+			const response = await axios.post(`${config.API_URL}/auth/login`, { email, password });
 			const data = response.data;
 
-			if (data.isSuccess && data.loginList) {
-				const employeeDetails = data.loginList;
+			if (data.isSuccess && data.user) {
+				const userDetails = data.user;
 				const userData: User = {
-					emailID: employeeDetails.emailID,
-					userName: employeeDetails.userName,
-					employeeName: employeeDetails.employeeName,
-					roles: employeeDetails.roleName,
-					roleID: employeeDetails.roleID,
-					roleName: employeeDetails.roleName,
-					mobileNumber: employeeDetails.mobileNumber,
-					officeLandLine: employeeDetails.officeLandLine,
-					extensionNumber: employeeDetails.extensionNumber,
-					departmentID: employeeDetails.departmentID,
-					departmentName: employeeDetails.departmentName,
-					status: employeeDetails.status,
-					createdBy: employeeDetails.createdBy,
-					createdDate: employeeDetails.createdDate,
-					updatedBy: employeeDetails.updatedBy,
-					updatedDate: employeeDetails.updatedDate,
+					userId: userDetails.userId,
+					fullName: userDetails.fullName,
+					email: userDetails.email,
+					departmentId: userDetails.departmentId,
+					departmentName: userDetails.departmentName,
+					designation: userDetails.designation,
+					multirole: userDetails.multirole,
+					roles: userDetails.roles,
 					token: data.token,
 				};
 

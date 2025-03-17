@@ -7,6 +7,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import PaginationComponent from '@/pages/other/Component/PaginationComponent';
 import axiosInstance from '@/utils/axiosInstance';
+import RejectPopup from '../ProductMaster/ConvenerLevel2/RejectPopup';
+import TabNavigation from '../../Component/TabNavigation';
+
 
 interface Product {
     id: number;
@@ -36,6 +39,8 @@ const NewProductPendingCirculation = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [project, setProject] = useState<Product[]>([]);
+    const [manageId, setManageID] = useState<number>();
+    const [show, setShow] = useState(false);
 
 
     const location = useLocation();
@@ -57,7 +62,6 @@ const NewProductPendingCirculation = () => {
         { id: 'mobileNumber', label: 'Mobile Number', visible: true },
         { id: 'startDate', label: 'Start Date', visible: true },
         { id: 'dayslappesd', label: 'Day Laps', visible: true },
-        { id: 'queryCount', label: 'UnResolved Query', visible: true },
         { id: 'uploadedOn', label: 'SignOff By Department', visible: true },
     ]);
 
@@ -77,7 +81,7 @@ const NewProductPendingCirculation = () => {
     const fetchDetailsMain = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`${config.API_URL}/Product/GetProductCirculatedListForSignOff`, {
+            const response = await axiosInstance.get(`${config.API_URL}/Product/GetProduct`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
@@ -93,17 +97,28 @@ const NewProductPendingCirculation = () => {
             setLoading(false);
         }
     };
+    console.log(project)
+
     const ActionMenu: React.FC<{ item: Product }> = ({ item }) => {
         const popover = (
             <Popover id={`popover-action-${item.id}`} className="shadow">
                 <Popover.Body className="p-2">
-                    <Button variant="link" as={Link as any} to={`/pages/ProductMaster/${item.id}`} className="d-block text-start">
-                        <i className="ri-file-list-line me-2"></i> Document
+                    <Button variant="link" as={Link as any} to={`/AddProduct/${item.id}`} className="d-block text-start">
+                        <i className="ri-file-list-line me-2"></i> View Document
                     </Button>
-                    <Button variant="link" as={Link as any} to={`/pages/DiscussionList/${item.id}`} className="d-block text-start">
-                        <i className="ri-file-list-line me-2"></i> View Status
+                    <Button variant="link" onClick={() => handleEdit(item)} className="d-block text-start text-danger" disabled={item.isApproved === 2} >
+                        <i className="ri-close-line me-2"></i> Reject
+                    </Button>
+                    <Button variant="link" onClick={() => handleRework(item.id)} className="d-block text-start text-warning" disabled={item.isApproved === 2} >
+                        <i className="ri-reply-line me-2"></i> Send for Rework
                     </Button>
 
+                    <Button variant="link" onClick={() => handleSubmit(item.id)} className="d-block text-start text-success" disabled={item.isApproved === 2}>
+                        <i className="ri-checkbox-circle-line me-2"></i>{item.isApproved === 2 ? 'Approved' : 'Approve'}
+                    </Button>
+                    <Button variant="link" as={Link as any} to={`/pages/AssigneeDepartment/${item.id}`} className="d-block text-start text-primary">
+                        <i className="ri-share-forward-line me-2"></i> Circulate
+                    </Button>
                 </Popover.Body>
             </Popover>
         );
@@ -117,11 +132,67 @@ const NewProductPendingCirculation = () => {
         );
     };
 
+    const handleRework = async (id: any) => {
+
+        toast.dismiss();
+        const payload = {
+            id: id,
+            isRejected: 1,
+        };
+        console.log(payload)
+
+        try {
+            const apiUrl = `${config.API_URL}/Product/ApproveRejectProduct`;
+            const response = await axiosInstance.post(apiUrl, payload);
+            if (response.status === 200) {
+                window.location.reload();
+                toast.success(response.data.message || 'Approved Successfully');
+            } else {
+                toast.error(response.data.message || 'Failed to process request');
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Error Adding/Updating');
+            console.error('Error submitting employee:', error);
+        }
+    };
+    const handleSubmit = async (id: any) => {
+
+        toast.dismiss();
+        const payload = {
+            id: id,
+            isApproved: 2,
+        };
+        console.log(payload)
+
+        try {
+            const apiUrl = `${config.API_URL}/Product/ApproveRejectProduct`;
+            const response = await axiosInstance.post(apiUrl, payload);
+            if (response.status === 200) {
+                navigate(`/pages/AssigneeDepartment/${id}`)
+                toast.success(response.data.message || 'Approved Successfully');
+            } else {
+                toast.error(response.data.message || 'Failed to process request');
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Error Adding/Updating');
+            console.error('Error submitting employee:', error);
+        }
+    };
+
+
+
+    const handleShow = () => setShow(true);
+    const handleEdit = (item: any) => {
+        handleShow();
+        setManageID(item)
+    };
+
 
 
     return (
         <>
             <div className="mt-3">
+                <TabNavigation />
                 <Row>
                     <Col sm={12} >
                         <Card className="p-0">
@@ -130,7 +201,7 @@ const NewProductPendingCirculation = () => {
                                 <div className='bg-white p-2 pb-2'>
                                     <Row className=''>
                                         <div className="d-flex justify-content-between profilebar p-1">
-                                            <h4 className='text-primary d-flex align-items-center m-0'><i className="ri-file-list-line me-2 text-primary "></i>Un Resolved Query</h4>
+                                            <h4 className='text-primary d-flex align-items-center m-0'><i className="ri-file-list-line me-2 text-primary "></i>Product Pending Circulation </h4>
                                             <div className="d-flex justify-content-end bg-light w-50 profilebar">
                                                 <div className="input-group w-50 me-4">
                                                     <input
@@ -254,6 +325,7 @@ const NewProductPendingCirculation = () => {
                             </Card.Body>
                         </Card>
                     </Col>
+                    <RejectPopup show={show} setShow={setShow} dataItem={manageId} />
                 </Row>
             </div>
 

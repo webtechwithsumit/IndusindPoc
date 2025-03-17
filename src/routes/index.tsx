@@ -59,18 +59,34 @@ const InstantMail = React.lazy(() => import('../pages/other/HomePages/InstantMai
 const ComposeMail = React.lazy(() => import('../pages/other/HomePages/InstantMail/ComposeMail.tsx'))
 
 
-const Addholiday = React.lazy(() => import('../pages/other/HomePages/AddHoliday/Addholiday.tsx'))
-const AddholidayInsert = React.lazy(() => import('../pages/other/HomePages/AddHoliday/AddholidayInsert.tsx'))
+// const Addholiday = React.lazy(() => import('../pages/other/HomePages/AddHoliday/Addholiday.tsx'))
+// const AddholidayInsert = React.lazy(() => import('../pages/other/HomePages/AddHoliday/AddholidayInsert.tsx'))
 const CommingSoon = React.lazy(() => import('../pages/other/HomePages/CommingSoon.tsx'))
 
 
 
 const SignedOffProducts = React.lazy(() => import('../pages/other/HomePages/ProductMaster/ConvenerLevel2/SignOffProducts.tsx'))
-const PendingCirculation = React.lazy(() => import('../pages/other/HomePages/ProductMaster/ConvenerLevel2/NewProductPendingCirculation.tsx'))
-const PendingSignOff = React.lazy(() => import('../pages/other/HomePages/ProductMaster/ConvenerLevel2/ProductPendingSignOff.tsx'))
-const PendingFinalSignOff = React.lazy(() => import('../pages/other/HomePages/ProductMaster/ConvenerLevel2/ProductPendingFinalSignOff.tsx'))
+const PendingSignOffdash = React.lazy(() => import('../pages/other/HomePages/ProductMaster/ConvenerLevel2/ProductPendingSignOff.tsx'))
 const LaunchedProduct = React.lazy(() => import('../pages/other/HomePages/ProductMaster/LaunchedProduct.tsx'))
 const FinalViewProduct = React.lazy(() => import('../pages/other/HomePages/ProductMaster/FinalViewProduct.tsx'))
+
+
+
+
+const AddProduct = React.lazy(() => import('../pages/other/HomePages/ManageProduct/AddProduct.tsx'))
+const PendingCirculation = React.lazy(() => import('../pages/other/HomePages/ManageProduct/PendingCirculation.tsx'))
+const RejectedNotes = React.lazy(() => import('../pages/other/HomePages/ManageProduct/RejectedNotes.tsx'))
+const SignedOffGiven = React.lazy(() => import('../pages/other/HomePages/ManageProduct/SignedOffGiven.tsx'))
+const ReSubmittedNote = React.lazy(() => import('../pages/other/HomePages/ManageProduct/ReSubmittedNote.tsx'))
+const PendingFinalSignOff = React.lazy(() => import('../pages/other/HomePages/ManageProduct/PendingFinalSignOff.tsx'))
+const PendingSignoff = React.lazy(() => import('../pages/other/HomePages/ManageProduct/PendingSignOff.tsx'))
+const SignedOffProductSGDOwner = React.lazy(() => import('../pages/other/HomePages/ManageProduct/SignedOffBySGDOwner.tsx'))
+
+
+
+
+const ScheduleMeeting = React.lazy(() => import('../pages/other/HomePages/ScheduleMeeting/ScheduleMeeting.tsx'));
+
 
 
 
@@ -357,21 +373,16 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/ProductMaster/PendingCirculation',
-			name: 'PendingCirculation',
+			path: '/PendingCirculation',
+			name: 'AddProduct',
 			element: <PendingCirculation />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/ProductMaster/PendingFinalSignOff',
-			name: 'PendingFinalSignOff',
-			element: <PendingFinalSignOff />,
-			route: PrivateRoute,
-		},
+
 		{
 			path: '/pages/ProductMaster/PendingSignOff',
 			name: 'PendingSignOff',
-			element: <PendingSignOff />,
+			element: <PendingSignOffdash />,
 			route: PrivateRoute,
 		},
 
@@ -381,16 +392,6 @@ const customPagesRoutes = {
 			element: <LaunchedProduct />,
 			route: PrivateRoute,
 		},
-
-
-
-
-
-
-
-
-
-
 
 
 		{
@@ -405,18 +406,6 @@ const customPagesRoutes = {
 			element: <ComposeMail />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/Addholiday',
-			name: 'Addholiday',
-			element: <Addholiday />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/AddholidayInsert',
-			name: 'AddholidayInsert',
-			element: <AddholidayInsert />,
-			route: PrivateRoute,
-		},
 
 		{
 			path: '/pages/CommingSoon',
@@ -431,123 +420,197 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon1', 
+			path: '/pages/CommingSoon1',
 			name: 'CommingSoon1',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon2', 
+			path: '/pages/CommingSoon2',
 			name: 'CommingSoon2',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon3', 
+			path: '/pages/CommingSoon3',
 			name: 'CommingSoon3',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon4', 
+			path: '/pages/CommingSoon4',
 			name: 'CommingSoon4',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon5', 
+			path: '/pages/CommingSoon5',
 			name: 'CommingSoon5',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon6', 
+			path: '/pages/CommingSoon6',
 			name: 'CommingSoon6',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon7', 
+			path: '/pages/CommingSoon7',
 			name: 'CommingSoon7',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon8', 
+			path: '/pages/CommingSoon8',
 			name: 'CommingSoon8',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon9', 
+			path: '/pages/CommingSoon9',
 			name: 'CommingSoon9',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon10', 
+			path: '/pages/CommingSoon10',
 			name: 'CommingSoon10',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon11', 
+			path: '/pages/CommingSoon11',
 			name: 'CommingSoon11',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon12', 
+			path: '/pages/CommingSoon12',
 			name: 'CommingSoon12',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon13', 
+			path: '/pages/CommingSoon13',
 			name: 'CommingSoon13',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon14', 
+			path: '/pages/CommingSoon14',
 			name: 'CommingSoon14',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon15', 
+			path: '/pages/CommingSoon15',
 			name: 'CommingSoon15',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon16', 
+			path: '/pages/CommingSoon16',
 			name: 'CommingSoon16',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon17', 
+			path: '/pages/CommingSoon17',
 			name: 'CommingSoon17',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon18', 
+			path: '/pages/CommingSoon18',
 			name: 'CommingSoon18',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon19', 
+			path: '/pages/CommingSoon19',
 			name: 'CommingSoon19',
 			element: <CommingSoon />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CommingSoon20', 
+			path: '/pages/CommingSoon20',
 			name: 'CommingSoon20',
 			element: <CommingSoon />,
+			route: PrivateRoute,
+		},
+
+
+
+
+
+
+
+
+
+		{
+			path: '/AddProduct',
+			name: 'AddProduct',
+			element: <AddProduct />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/AddProduct/:id',
+			name: 'AddProduct',
+			element: <AddProduct />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/PendingCirculation',
+			name: 'AddProduct',
+			element: <PendingCirculation />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/RejectedNotes',
+			name: 'AddProduct',
+			element: <RejectedNotes />,
+			route: PrivateRoute,
+		},
+
+		{
+			path: '/SignedOffGiven',
+			name: 'AddProduct',
+			element: <SignedOffGiven />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/ReSubmittedNote',
+			name: 'AddProduct',
+			element: <ReSubmittedNote />,
+			route: PrivateRoute,
+		},
+
+
+		{
+			path: '/PendingSignoff',
+			name: 'AddProduct',
+			element: <PendingSignoff />,
+			route: PrivateRoute,
+		},
+
+		{
+			path: '/PendingFinalSignOff',
+			name: 'AddProduct',
+			element: <PendingFinalSignOff />,
+			route: PrivateRoute,
+		},
+
+		{
+			path: '/SignedOffProductSGDOwner',
+			name: 'AddProduct',
+			element: <SignedOffProductSGDOwner />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/ScheduleMeeting',
+			name: 'ScheduleMeeting',
+			element: <ScheduleMeeting />,
 			route: PrivateRoute,
 		},
 
